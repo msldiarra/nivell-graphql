@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "babel": "^6.5.2",
     "express": "^4.13.4",
     "express-graphql": "^0.4.9",
     "graphiql": "^0.5.0",
