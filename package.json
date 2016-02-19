@@ -15,6 +15,8 @@
     "express-graphql": "^0.4.9",
     "graphiql": "^0.5.0",
     "graphql": "^0.4.18",
+    "pg": "^4.4.6",
+    "pg-hstore": "^2.3.2",
     "react": "^0.14.7",
     "react-dom": "^0.14.7",
     "sequelize": "^3.19.3"
