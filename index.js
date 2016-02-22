@@ -35,6 +35,5 @@ var schema = new graphql.GraphQLSchema({
 
 console.log('Server online!');
 express()
-    .use('/', express.static('public'))
-    .use('/graphql', graphqlHTTP({ schema: schema, pretty: true }))
+    .use('/graphql', graphqlHTTP({ schema: schema, pretty: true, graphiql: true}))
     .listen(3000);
