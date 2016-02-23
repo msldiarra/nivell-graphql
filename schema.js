@@ -1,16 +1,52 @@
 import {
     GraphQLObjectType,
     GraphQLString,
+    GraphQLInt,
+    GraphQLBoolean,
     GraphQLSchema
 } from 'graphql';
+
+import db from './db';
+
 var data = require('./data.json');
 
-// Define our user type, with two string fields; `id` and `name`
-var userType = new GraphQLObjectType({
+const User = new GraphQLObjectType({
     name: 'User',
-    fields: {
-        id: { type: GraphQLString },
-        name: { type: GraphQLString },
+    fields: () => {
+        return {
+            id: {
+                type: GraphQLInt,
+                resolve(user) { return user.id }
+            },
+            firstName: {
+                type: GraphQLString,
+                resolve(user) { return user.firstname }
+            },
+            lastName: {
+                type: GraphQLString,
+                resolve(user) { return user.lastname }
+            },
+            login: {
+                type: GraphQLString,
+                resolve(user) { return user.login }
+            },
+            password: {
+                type: GraphQLString,
+                resolve(user) { return user.password }
+            },
+            email: {
+                type: GraphQLString,
+                resolve(user) { return user.email }
+            },
+            enabled: {
+                type: GraphQLBoolean,
+                resolve(user) { return user.enabled }
+            },
+            company: {
+                type: GraphQLString,
+                resolve(user) { return user.company }
+            }
+        }
     }
 });
 
@@ -21,12 +57,12 @@ var Schema = new GraphQLSchema({
         name: 'Query',
         fields: {
             user: {
-                type: userType,
+                type: User,
                 args: {
-                    id: { type: GraphQLString }
+                    id: { type: GraphQLInt }
                 },
                 resolve: function (_, args) {
-                    return data[args.id];
+                    return db.models.user.findOne({where: args});
                 }
             }
         }
