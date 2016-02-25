@@ -3,6 +3,8 @@ import {
     GraphQLString,
     GraphQLInt,
     GraphQLBoolean,
+    GraphQLNonNull,
+    GraphQLList,
     GraphQLSchema
 } from 'graphql';
 
@@ -14,59 +16,107 @@ const User = new GraphQLObjectType({
     name: 'User',
     fields: () => {
         return {
-            id: {
-                type: GraphQLInt,
-                resolve(user) { return user.id }
-            },
-            firstName: {
-                type: GraphQLString,
-                resolve(user) { return user.firstname }
-            },
-            lastName: {
-                type: GraphQLString,
-                resolve(user) { return user.lastname }
-            },
-            login: {
-                type: GraphQLString,
-                resolve(user) { return user.login }
-            },
-            password: {
-                type: GraphQLString,
-                resolve(user) { return user.password }
-            },
-            email: {
-                type: GraphQLString,
-                resolve(user) { return user.email }
-            },
-            enabled: {
-                type: GraphQLBoolean,
-                resolve(user) { return user.enabled }
-            },
-            company: {
-                type: GraphQLString,
-                resolve(user) { return user.company }
-            }
+            id: { type: GraphQLInt, resolve(user) { return user.id } },
+            credentials: { type: Login, resolve(user) { return user.login } },
+            contact: { type: Contact, resolve(user) { return user.login } },
+            info: { type: ContactInfo, resolve(user) { return user.login } },
+            company: { type: Customer, resolve(user) { return user.company } }
         }
     }
 });
 
-// Define our schema, with one top level field, named `user`, that
-// takes an `id` argument and returns the User with that ID.
-var Schema = new GraphQLSchema({
-    query: new GraphQLObjectType({
-        name: 'Query',
-        fields: {
-            user: {
-                type: User,
+const Customer = new GraphQLObjectType({
+    name: 'Customer',
+    fields: () => {
+        return {
+            id: { type: GraphQLInt, resolve(customer) { return customer.id } },
+            name: { type: GraphQLString, resolve(customer) { return customer.name } },
+            contacts: { type: new GraphQLList(Contact), resolve(customer) { return customer.getContacts() } }
+        }
+    }
+});
+
+const Contact = new GraphQLObjectType({
+    name: 'Contact',
+    fields: () => {
+        return {
+            id: { type: GraphQLInt, resolve(contact) { return contact.id } },
+            firstName: { type: GraphQLString, resolve(contact) { return contact.firstname } },
+            lastName: { type: GraphQLString, resolve(contact) { return contact.lastname } },
+            credentials: { type: new GraphQLList(Login), resolve(contact) { return contact.getLogins() } }
+        }
+    }
+});
+
+const Login = new GraphQLObjectType({
+    name: 'Login',
+    fields: () => {
+        return {
+            id: { type: GraphQLInt, resolve(login) { return login.id } },
+            login: { type: GraphQLString, resolve(login) { return login.login } },
+            password: { type: GraphQLString, resolve(login) { return login.password } },
+            enabled: { type: GraphQLBoolean, resolve(login) { return login.enabled } }
+        }
+    }
+});
+
+const ContactInfo = new GraphQLObjectType({
+    name: 'ContactInfo',
+    fields: () => {
+        return {
+            id: { type: GraphQLInt, resolve(contactInfo) { return contactInfo.id } },
+            email: { type: GraphQLString, resolve(contactInfo) { return contactInfo.email } }
+        }
+    }
+});
+
+const Query = new GraphQLObjectType({
+    name: 'Query',
+    fields: {
+        customer: {
+            type: Customer,
+            args: { id: { type: GraphQLInt } },
+            resolve: function (_, args) {  return  db.models.customer.findOne({where: args}) }
+        },
+        contacts: {
+            type: new GraphQLList(Contact),
+            args: { id: { type: GraphQLInt } },
+            resolve: function (_, args) {  return  db.models.contact.findAll({where: args}) }
+        },
+        login: {
+            type: Login,
+            args: { id: { type: GraphQLInt } },
+            resolve: function (_, args) {  return  db.models.login.findOne({where: args}) }
+        }
+    }
+});
+
+/**
+const Mutation = new GraphQLObjectType({
+    name: 'Mutation',
+    description: 'add a user',
+    fields: () => {
+        return {
+            addCustomer: {
+                type: Customer,
                 args: {
-                    id: { type: GraphQLInt }
+                    company: { type: new GraphQLNonNull(GraphQLString) }
                 },
-                resolve: function (_, args) {
-                    return db.models.user.findOne({where: args});
-                }
+                resolve: (_, args) =>
+
+                    db.models.contact.create({
+                        firstName: args.firstname,
+                        lastName: args.lastname
+                    })
             }
         }
-    })
+    }
+
+});
+**/
+
+var Schema = new GraphQLSchema({
+    query: Query
 });
 
 export default Schema;
