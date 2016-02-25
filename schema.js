@@ -9,8 +9,7 @@ import {
 } from 'graphql';
 
 import db from './db';
-
-var data = require('./data.json');
+import sha256 from 'js-sha256';
 
 const User = new GraphQLObjectType({
     name: 'User',
@@ -91,32 +90,29 @@ const Query = new GraphQLObjectType({
     }
 });
 
-/**
+
 const Mutation = new GraphQLObjectType({
     name: 'Mutation',
-    description: 'add a user',
     fields: () => {
         return {
             addCustomer: {
                 type: Customer,
                 args: {
-                    company: { type: new GraphQLNonNull(GraphQLString) }
+                    name: { type: new GraphQLNonNull(GraphQLString) }
                 },
                 resolve: (_, args) =>
-
-                    db.models.contact.create({
-                        firstName: args.firstname,
-                        lastName: args.lastname
+                    db.models.customer.create({
+                        name: args.name
                     })
             }
         }
     }
 
 });
-**/
 
 var Schema = new GraphQLSchema({
-    query: Query
+    query: Query,
+    mutation: Mutation
 });
 
 export default Schema;
